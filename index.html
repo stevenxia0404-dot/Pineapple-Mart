@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>菠萝马特 - Prompt Master</title>
+    <title>菠萝玛特 - Prompt Mart</title>
     
     <link rel="icon" href="./icon.png" type="image/png">
     <link rel="apple-touch-icon" href="./icon.png">
@@ -120,8 +120,8 @@
     <div class="app-container" id="mainAppContainer">
         <div class="sidebar">
             <div class="brand-header">
-                <h1 class="brand-title">菠萝马特</h1>
-                <div class="brand-subtitle">Prompt Master</div>
+                <h1 class="brand-title">菠萝玛特</h1>
+                <div class="brand-subtitle">Prompt Mart</div>
             </div>
             <div class="sidebar-nav" id="sidebarContainer"></div>
         </div>
@@ -369,7 +369,7 @@
             const finalPrompt = finalPromptArray.join(', ');
             if (finalPrompt) {
                 navigator.clipboard.writeText(finalPrompt).then(() => {
-                    alert('✨ 像素菠萝提示：参数已复制！\n\n' + finalPrompt);
+                    alert('✨ 菠萝玛特提示：参数已装填，随时可以召唤神图！\n\n' + finalPrompt);
                 });
             }
         }
@@ -381,8 +381,8 @@
         function registerPWA() {
             if ('serviceWorker' in navigator) {
                 const manifest = {
-                    "name": "菠萝马特 Prompt Master",
-                    "short_name": "菠萝马特",
+                    "name": "菠萝玛特 Prompt Mart",
+                    "short_name": "菠萝玛特",
                     "display": "standalone",
                     "background_color": "#F9FAFB",
                     "theme_color": "#115E59", 
