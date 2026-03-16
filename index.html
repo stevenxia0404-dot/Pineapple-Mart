@@ -7,36 +7,23 @@
     <style>
         /* ================= 核心色彩与视觉变量 ================= */
         :root {
-            /* 菠萝马特专属品牌色：深雾霾青瓷绿 */
             --brand-pill-bg: #115E59; 
             --brand-pill-text: #FFFFFF; 
-            
-            /* 全局基础色彩 */
             --bg-color: #F9FAFB;
             --panel-bg: #FFFFFF;
             --text-main: #111827;
             --text-muted: #9CA3AF;
             --border-color: #E5E7EB;
-            
-            /* 标签按钮色彩：未选中 */
             --tag-unselected-bg: #F3F4F6;
             --tag-unselected-text: #4B5563; 
-            
-            /* 标签按钮色彩：选中 (高级黛蓝) */
             --tag-selected-bg: #EEF2FF;     
             --tag-selected-text: #4338CA;   
             --tag-selected-border: #C7D2FE; 
-            
-            /* 控制台输出芯片色彩 */
             --chip-bg: #FFFFFF;
             --chip-text: #4338CA;
             --chip-border: #C7D2FE;
-
-            /* 全局统一的高级行动色 (矢车菊蓝) */
             --primary-action: #6366F1;
             --primary-action-hover: #4F46E5;
-            
-            /* 圆角与阴影 */
             --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.03);
             --radius-capsule: 30px; 
             --radius-panel: 16px;
@@ -49,135 +36,109 @@
             overflow-x: hidden; letter-spacing: 0.3px;
         }
         
-        .app-container { display: flex; height: 100vh; }
+        .app-container { display: flex; height: 100vh; filter: blur(0px); transition: filter 0.5s ease; }
+        .app-container.locked { filter: blur(10px); pointer-events: none; user-select: none; }
 
-        /* ================= 1. 左侧导航 (品牌头 + 绝对居中) ================= */
-        .sidebar { 
-            width: 250px; background: var(--panel-bg); padding: 30px 20px; 
-            border-right: 1px solid var(--border-color); display: flex; flex-direction: column; 
-            box-shadow: var(--shadow-soft); z-index: 10; box-sizing: border-box;
+        /* ================= SaaS 高级门禁系统 (Auth Overlay) ================= */
+        .auth-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(249, 250, 251, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; opacity: 1; transition: opacity 0.5s ease;
         }
+        .auth-overlay.hidden { opacity: 0; pointer-events: none; }
         
-        .brand-header { 
-            background: var(--brand-pill-bg); 
-            padding: 15px 10px; border-radius: 20px; 
-            box-shadow: 0 4px 12px rgba(17, 94, 89, 0.2);
-            text-align: center; margin-bottom: 30px;
+        .auth-box {
+            background: var(--panel-bg); padding: 40px 50px; border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08); text-align: center; max-width: 90%; width: 320px;
+            border: 1px solid var(--border-color); transform: translateY(0); transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
+        .auth-overlay.hidden .auth-box { transform: translateY(20px); }
+
+        .auth-logo { font-size: 48px; margin-bottom: 15px; }
+        .auth-title { font-size: 22px; font-weight: 700; color: var(--text-main); margin: 0 0 8px 0; }
+        .auth-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 30px; }
+        
+        .auth-input {
+            width: 100%; padding: 16px; box-sizing: border-box; border-radius: 12px;
+            border: 2px solid var(--border-color); background: var(--bg-color);
+            font-size: 16px; text-align: center; font-family: 'Courier New', monospace; font-weight: bold;
+            color: var(--text-main); transition: border 0.3s; margin-bottom: 20px; outline: none;
+        }
+        .auth-input:focus { border-color: var(--brand-pill-bg); }
+        .auth-input::placeholder { font-weight: normal; color: #D1D5DB; font-family: sans-serif; }
+        
+        .auth-btn {
+            width: 100%; padding: 16px; border-radius: 12px; border: none;
+            background: var(--brand-pill-bg); color: white; font-size: 16px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(17, 94, 89, 0.2);
+        }
+        .auth-btn:hover { background: #0F524D; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(17, 94, 89, 0.3); }
+        .auth-btn:disabled { background: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .auth-error { color: #EF4444; font-size: 13px; margin-top: 15px; min-height: 18px; font-weight: 500;}
+
+        /* ================= 原有主界面 UI 样式 ================= */
+        .sidebar { width: 250px; background: var(--panel-bg); padding: 30px 20px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; box-shadow: var(--shadow-soft); z-index: 10; box-sizing: border-box; }
+        .brand-header { background: var(--brand-pill-bg); padding: 15px 10px; border-radius: 20px; box-shadow: 0 4px 12px rgba(17, 94, 89, 0.2); text-align: center; margin-bottom: 30px; }
         .brand-title { font-size: 20px; font-weight: 700; color: var(--brand-pill-text); margin: 0; letter-spacing: 3px; }
         .brand-subtitle { font-size: 10px; color: rgba(255, 255, 255, 0.8); font-weight: 400; margin-top: 6px; letter-spacing: 1px; text-transform: uppercase;}
-
         .sidebar-nav { display: flex; flex-direction: column; gap: 10px; width: 100%; overflow-y: auto; padding-bottom: 20px; }
         .sidebar-nav::-webkit-scrollbar { width: 4px; }
         .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-
-        .category-item { 
-            width: 100%; min-height: 54px; flex-shrink: 0;
-            box-sizing: border-box; cursor: pointer; border-radius: var(--radius-capsule);
-            background: transparent; color: var(--text-muted); transition: all 0.2s; border: 1px solid transparent;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-        }
+        .category-item { width: 100%; min-height: 54px; flex-shrink: 0; box-sizing: border-box; cursor: pointer; border-radius: var(--radius-capsule); background: transparent; color: var(--text-muted); transition: all 0.2s; border: 1px solid transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .category-item .cn { font-size: 14px; font-weight: 500; }
         .category-item .en { font-size: 10px; font-weight: 400; opacity: 0.7; font-family: 'Helvetica Neue', Arial, sans-serif; margin-top: 3px;}
-        
         .category-item:hover { background: var(--tag-unselected-bg); color: var(--text-main); }
         .category-item.active { background: var(--tag-selected-bg); color: var(--tag-selected-text); border: 1px solid var(--tag-selected-border); }
 
-        /* ================= 2. 中间内容区 ================= */
         .main-content { flex: 1; padding: 30px 40px; overflow-y: auto; }
-        
         .section-header { margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; text-align: center; }
         .section-header h2 { margin: 0; font-size: 20px; font-weight: 600; }
         .section-header .en-title { font-size: 12px; color: var(--text-muted); margin-top: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
-
         .tag-pool { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; } 
-        
-        .tag-btn { 
-            background: var(--tag-unselected-bg); border: 1px solid transparent; 
-            padding: 8px 18px; 
-            border-radius: var(--radius-capsule); cursor: pointer; transition: all 0.2s ease; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
+        .tag-btn { background: var(--tag-unselected-bg); border: 1px solid transparent; padding: 8px 18px; border-radius: var(--radius-capsule); cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .tag-btn .cn { font-size: 14px; font-weight: 500; color: var(--tag-unselected-text); transition: color 0.2s; }
         .tag-btn .en { font-size: 11px; font-weight: 400; color: var(--text-muted); font-family: monospace; transition: color 0.2s; margin-top: 2px;}
-        
         .tag-btn:hover { background: #E5E7EB; transform: translateY(-1px); }
         .tag-btn.selected { background: var(--tag-selected-bg); border: 1px solid var(--tag-selected-border); }
         .tag-btn.selected .cn { color: var(--tag-selected-text); font-weight: 600; }
         .tag-btn.selected .en { color: var(--tag-selected-text); opacity: 0.8; }
 
-        /* ================= 3. 右侧控制台 ================= */
-        .right-panel { 
-            width: 340px; background: var(--panel-bg); padding: 30px 25px; 
-            border-left: 1px solid var(--border-color); display: flex; flex-direction: column;
-            box-shadow: -4px 0 20px rgba(0,0,0,0.02); z-index: 10; box-sizing: border-box;
-        }
-        
+        .right-panel { width: 340px; background: var(--panel-bg); padding: 30px 25px; border-left: 1px solid var(--border-color); display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.02); z-index: 10; box-sizing: border-box; }
         .console-header { margin-bottom: 20px; text-align: center; }
         .console-header .cn { font-size: 16px; font-weight: 600; margin: 0; color: var(--text-main); }
         .console-header .en { font-size: 10px; color: var(--text-muted); margin-top: 4px; letter-spacing: 1px; text-transform: uppercase;}
-
-        .preview-box { 
-            flex: 1; background: var(--bg-color); padding: 15px; border-radius: var(--radius-panel); 
-            border: 1px solid var(--border-color); margin-bottom: 20px; 
-            box-shadow: inset 0 2px 6px rgba(0,0,0,0.02); 
-            display: flex; flex-direction: column; overflow-y: auto;
-        }
-        
-        .custom-textarea {
-            width: 100%; border: none; background: transparent; color: var(--text-main);
-            font-family: inherit; font-size: 14px; resize: none; outline: none;
-            min-height: 80px; line-height: 1.5; box-sizing: border-box;
-        }
+        .preview-box { flex: 1; background: var(--bg-color); padding: 15px; border-radius: var(--radius-panel); border: 1px solid var(--border-color); margin-bottom: 20px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; overflow-y: auto; }
+        .custom-textarea { width: 100%; border: none; background: transparent; color: var(--text-main); font-family: inherit; font-size: 14px; resize: none; outline: none; min-height: 80px; line-height: 1.5; box-sizing: border-box; }
         .custom-textarea::placeholder { color: #D1D5DB; font-style: italic; }
-        
         .preview-divider { height: 1px; background: var(--border-color); margin: 10px 0; display: none; }
-        
         .preview-tags-container { display: flex; flex-wrap: wrap; gap: 6px; }
-        .preview-tag-chip {
-            background: var(--chip-bg); border: 1px solid var(--chip-border);
-            color: var(--chip-text); padding: 4px 10px; border-radius: 12px;
-            font-size: 12px; font-family: 'Courier New', Courier, monospace; font-weight: 500;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
+        .preview-tag-chip { background: var(--chip-bg); border: 1px solid var(--chip-border); color: var(--chip-text); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-family: 'Courier New', Courier, monospace; font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .btn-group { display: flex; gap: 10px; }
-        .action-btn { 
-            padding: 12px; border-radius: 12px; cursor: pointer; border: none;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-            transition: all 0.2s;
-        }
+        .action-btn { padding: 12px; border-radius: 12px; cursor: pointer; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; transition: all 0.2s; }
         .action-btn .cn { font-size: 14px; font-weight: 600; }
         .action-btn .en { font-size: 9px; opacity: 0.8; font-family: sans-serif; letter-spacing: 0.5px;}
-
         .btn-copy { background: var(--primary-action); color: #FFF; flex: 2; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);}
         .btn-copy:hover { background: var(--primary-action-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);}
         .btn-clear { background: var(--bg-color); color: var(--text-main); border: 1px solid var(--border-color); flex: 1; }
         .btn-clear:hover { background: #E5E7EB; }
 
-        /* ================= 4. 手机端自适应 ================= */
         .fab { display: none; position: fixed; bottom: 25px; right: 25px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary-action); color: white; font-size: 22px; text-align: center; line-height: 56px; box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3); cursor: pointer; z-index: 100; font-weight: bold; transition: transform 0.2s; }
         .fab:active { transform: scale(0.9); }
         .fab-badge { position: absolute; top: 0px; right: 0px; background: #EF4444; color: white; font-size: 11px; width: 18px; height: 18px; border-radius: 50%; line-height: 18px; font-weight: bold; display: none; }
-
         .mobile-bottom-sheet { display: none; position: fixed; bottom: -100%; left: 0; width: 100%; box-sizing: border-box; background: var(--panel-bg); padding: 25px 20px; border-top-left-radius: 24px; border-top-right-radius: 24px; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); transition: bottom 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 99; }
         .mobile-bottom-sheet.show { bottom: 0; }
         .sheet-close-btn { width: 100%; margin-top: 10px; padding: 12px; background: transparent; color: var(--text-muted); border: none; font-size: 13px; cursor: pointer; }
 
         @media (max-width: 768px) {
             .app-container { flex-direction: column; }
-            .sidebar { 
-                width: 100%; box-sizing: border-box; flex-direction: row; flex-wrap: wrap; justify-content: center; 
-                padding: 15px 10px; border-right: none; border-bottom: 1px solid var(--border-color); gap: 6px;
-                box-shadow: none;
-            }
+            .sidebar { width: 100%; box-sizing: border-box; flex-direction: row; flex-wrap: wrap; justify-content: center; padding: 15px 10px; border-right: none; border-bottom: 1px solid var(--border-color); gap: 6px; box-shadow: none; }
             .sidebar-nav { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 6px; overflow-y: visible; padding-bottom: 0;}
             .brand-header { width: 100%; margin-bottom: 10px; } 
-            
             .category-item { width: calc(33.33% - 8px); min-height: 48px; padding: 0; }
             .category-item .cn { font-size: 13px; }
             .category-item .en { font-size: 9px; }
-            
             .main-content { padding: 20px 15px; }
             .right-panel { display: none; }
             .fab { display: block; }
@@ -187,7 +148,19 @@
 </head>
 <body>
 
-    <div class="app-container">
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-box">
+            <div class="auth-logo">🍍</div>
+            <h2 class="auth-title">菠萝马特</h2>
+            <p class="auth-subtitle">Prompt Master · 商业版</p>
+            
+            <input type="text" class="auth-input" id="licenseKeyInput" placeholder="请输入授权码解锁" autocomplete="off">
+            <button class="auth-btn" id="unlockBtn" onclick="verifyLicense()">解锁金库</button>
+            <div class="auth-error" id="authErrorMsg"></div>
+        </div>
+    </div>
+
+    <div class="app-container locked" id="mainAppContainer">
         <div class="sidebar">
             <div class="brand-header">
                 <h1 class="brand-title">菠萝马特</h1>
@@ -199,8 +172,8 @@
 
         <div class="main-content">
             <div class="section-header">
-                <h2 id="currentCategoryTitleCn">加载中...</h2>
-                <div class="en-title" id="currentCategoryTitleEn">Loading...</div>
+                <h2 id="currentCategoryTitleCn">未解锁</h2>
+                <div class="en-title" id="currentCategoryTitleEn">LOCKED</div>
             </div>
             <div class="tag-pool" id="tagPoolContainer"></div>
         </div>
@@ -212,7 +185,7 @@
             </div>
             
             <div class="preview-box">
-                <textarea id="customInput" class="custom-textarea" placeholder="在此自由输入你的专属描述词...&#10;(如: A beautiful girl walking in the neon street)" oninput="syncInput(event)"></textarea>
+                <textarea id="customInput" class="custom-textarea" placeholder="在此自由输入你的专属描述词..." oninput="syncInput(event)"></textarea>
                 <div class="preview-divider" id="previewDivider"></div>
                 <div class="preview-tags-container" id="promptPreviewTags"></div>
             </div>
@@ -235,13 +208,11 @@
             <p class="cn">指令控制台</p>
             <p class="en">Prompt Console</p>
         </div>
-        
         <div class="preview-box" style="height: 180px;">
             <textarea id="customInputMobile" class="custom-textarea" placeholder="在此自由输入你的专属描述词..." oninput="syncInput(event)"></textarea>
             <div class="preview-divider" id="previewDividerMobile"></div>
             <div class="preview-tags-container" id="promptPreviewTagsMobile"></div>
         </div>
-
         <div class="btn-group">
             <button class="action-btn btn-clear" onclick="clearPrompt()">
                 <span class="cn">清空</span><span class="en">CLEAR</span>
@@ -254,107 +225,89 @@
     </div>
 
     <script>
-        const promptMatrix = [
-            {
-                nameCn: "摄影与底片", nameEn: "Cameras & Film", id: "camera",
-                tags: [
-                    { labelCn: "哈苏中画幅", labelEn: "Shot on Hasselblad", prompt: "Shot on Hasselblad" },
-                    { labelCn: "徕卡M11", labelEn: "Leica M11", prompt: "Leica M11" },
-                    { labelCn: "阿莱电影机", labelEn: "ARRI Alexa 65", prompt: "ARRI Alexa 65" },
-                    { labelCn: "柯达 Portra 400", labelEn: "Kodak Portra 400", prompt: "Kodak Portra 400 film" },
-                    { labelCn: "富士 Superia", labelEn: "Fujifilm Superia", prompt: "Fujifilm Superia film" },
-                    { labelCn: "夜景 Cinestill", labelEn: "Cinestill 800T", prompt: "Cinestill 800T" },
-                    { labelCn: "一次性相机", labelEn: "Disposable Camera", prompt: "Disposable camera aesthetic" },
-                    { labelCn: "拍立得质感", labelEn: "Polaroid", prompt: "Polaroid style" }
-                ]
-            },
-            {
-                nameCn: "镜头与光圈", nameEn: "Lenses & Aperture", id: "lens",
-                tags: [
-                    { labelCn: "24mm 广角", labelEn: "24mm Lens", prompt: "24mm lens" },
-                    { labelCn: "35mm 人文", labelEn: "35mm Lens", prompt: "35mm lens" },
-                    { labelCn: "50mm 标准", labelEn: "50mm Lens", prompt: "50mm lens" },
-                    { labelCn: "85mm 人像", labelEn: "85mm Lens", prompt: "85mm lens" },
-                    { labelCn: "200mm 长焦", labelEn: "200mm Telephoto", prompt: "200mm telephoto lens" },
-                    { labelCn: "微距镜头", labelEn: "Macro Lens", prompt: "Macro lens" },
-                    { labelCn: "鱼眼扭曲", labelEn: "Fisheye Lens", prompt: "Fisheye lens" },
-                    { labelCn: "f/1.2 超大光圈", labelEn: "f/1.2 Aperture", prompt: "f/1.2 aperture, shallow depth of field" }
-                ]
-            },
-            {
-                nameCn: "视角与景别", nameEn: "Angles & Shots", id: "angle",
-                tags: [
-                    { labelCn: "面部特写", labelEn: "Close-up", prompt: "Close-up shot" },
-                    { labelCn: "半身牛仔景", labelEn: "Cowboy Shot", prompt: "Cowboy shot" },
-                    { labelCn: "全身景", labelEn: "Full Body", prompt: "Full body shot" },
-                    { labelCn: "极远大景", labelEn: "Extreme Wide", prompt: "Extreme wide shot" },
-                    { labelCn: "仰视机位", labelEn: "Low Angle", prompt: "Low angle shot" },
-                    { labelCn: "上帝视角", labelEn: "Bird's-eye View", prompt: "Bird's-eye view" },
-                    { labelCn: "荷兰角倾斜", labelEn: "Dutch Angle", prompt: "Dutch angle" }
-                ]
-            },
-            {
-                nameCn: "光线与氛围", nameEn: "Lighting & Atmosphere", id: "lighting",
-                tags: [
-                    { labelCn: "黄金时刻", labelEn: "Golden Hour", prompt: "Golden hour lighting" },
-                    { labelCn: "蓝调时刻", labelEn: "Blue Hour", prompt: "Blue hour lighting" },
-                    { labelCn: "斑驳树影", labelEn: "Dappled Sunlight", prompt: "Dappled sunlight" },
-                    { labelCn: "伦勃朗人像光", labelEn: "Rembrandt Lighting", prompt: "Rembrandt lighting" },
-                    { labelCn: "边缘轮廓光", labelEn: "Rim Lighting", prompt: "Rim lighting" },
-                    { labelCn: "丁达尔效应", labelEn: "Volumetric Light", prompt: "Volumetric lighting, Tyndall effect" },
-                    { labelCn: "赛博霓虹", labelEn: "Neon Lights", prompt: "Neon lighting" }
-                ]
-            },
-            {
-                nameCn: "环境与背景", nameEn: "Environment & BG", id: "environment",
-                tags: [
-                    { labelCn: "纯黑背景", labelEn: "Solid Black", prompt: "Solid black background" },
-                    { labelCn: "极简留白", labelEn: "Minimalist", prompt: "Minimalist empty background" },
-                    { labelCn: "赛博城市", labelEn: "Cyberpunk City", prompt: "Cyberpunk city streets" },
-                    { labelCn: "废弃废墟", labelEn: "Abandoned Ruins", prompt: "Abandoned ruins" },
-                    { labelCn: "魔法森林", labelEn: "Magical Forest", prompt: "Magical forest" },
-                    { labelCn: "科幻实验室", labelEn: "Sci-fi Lab", prompt: "High-tech sci-fi laboratory" }
-                ]
-            },
-            {
-                nameCn: "人物与细节", nameEn: "Character & Details", id: "character",
-                tags: [
-                    { labelCn: "真实皮肤纹理", labelEn: "Realistic Skin", prompt: "Realistic skin texture, visible pores" },
-                    { labelCn: "清透眼神光", labelEn: "Catchlight", prompt: "Beautiful catchlight in eyes" },
-                    { labelCn: "根根发丝", labelEn: "Detailed Hair", prompt: "Highly detailed hair strands" },
-                    { labelCn: "狂喜表情", labelEn: "Ecstatic", prompt: "Ecstatic expression" },
-                    { labelCn: "冷酷忧郁", labelEn: "Stoic & Melancholic", prompt: "Stoic and melancholic look" },
-                    { labelCn: "极具动感姿势", labelEn: "Dynamic Pose", prompt: "Dynamic action pose" }
-                ]
-            },
-            {
-                nameCn: "材质与色彩", nameEn: "Materials & Colors", id: "material",
-                tags: [
-                    { labelCn: "磨砂哑光", labelEn: "Matte Finish", prompt: "Matte finish" },
-                    { labelCn: "高光反光", labelEn: "High Gloss", prompt: "High gloss reflections" },
-                    { labelCn: "半透明质感", labelEn: "Translucent", prompt: "Translucent material" },
-                    { labelCn: "莫兰迪色调", labelEn: "Morandi Palette", prompt: "Morandi color palette" },
-                    { labelCn: "赛博配色", labelEn: "Cyberpunk Colors", prompt: "Cyberpunk color scheme, cyan and magenta" },
-                    { labelCn: "低饱和度", labelEn: "Low Saturation", prompt: "Low saturation, muted colors" }
-                ]
-            },
-            {
-                nameCn: "画风与渲染", nameEn: "Style & Quality", id: "style",
-                tags: [
-                    { labelCn: "极其细致", labelEn: "Ultra-Detailed", prompt: "Ultra-detailed, Masterpiece" },
-                    { labelCn: "8K 极高画质", labelEn: "8K Resolution", prompt: "8k resolution, best quality" },
-                    { labelCn: "极度写实摄影", labelEn: "Hyper-Realistic", prompt: "Hyper-realistic photography" },
-                    { labelCn: "虚幻引擎 5", labelEn: "Unreal Engine 5", prompt: "Unreal Engine 5 render" },
-                    { labelCn: "辛烷值渲染", labelEn: "Octane Render", prompt: "Octane render" },
-                    { labelCn: "吉卜力画风", labelEn: "Studio Ghibli", prompt: "Studio Ghibli style anime" }
-                ]
-            }
-        ];
-
+        // 1. 你的专属云端发卡 API 地址
+        const API_URL = "https://gentle-mouse-a8cf.stevenxia0404.workers.dev/";
+        
+        // 2. 本地空壳，等待从云端注入灵魂
+        let promptMatrix = []; 
         let selectedTagPrompts = [];
+
+        // 3. 页面加载：自动检查本地是否存有有效卡密
+        window.onload = async () => {
+            const savedKey = localStorage.getItem('pineapple_license');
+            if (savedKey) {
+                // 如果有缓存，悄悄验证
+                document.getElementById('unlockBtn').innerText = '自动登录中...';
+                document.getElementById('unlockBtn').disabled = true;
+                await verifyLicense(savedKey);
+            }
+        };
+
+        // 4. 发送请求给 Cloudflare Worker 验票
+        async function verifyLicense(autoKey = null) {
+            const keyToVerify = autoKey || document.getElementById('licenseKeyInput').value.trim();
+            const errorMsg = document.getElementById('authErrorMsg');
+            const btn = document.getElementById('unlockBtn');
+
+            if (!keyToVerify) {
+                errorMsg.innerText = "授权码不能为空哦";
+                return;
+            }
+
+            // UI 状态改为验证中
+            errorMsg.innerText = "";
+            btn.innerText = "验票中...";
+            btn.disabled = true;
+
+            try {
+                // 向你的服务器发送 POST 请求
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ licenseKey: keyToVerify })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // 🌟 验证成功！拿到了金库数据
+                    promptMatrix = result.data; 
+                    
+                    // 记住密码，下次免密
+                    localStorage.setItem('pineapple_license', keyToVerify);
+
+                    // 解除封印，启动 App
+                    unlockApp();
+                } else {
+                    // ❌ 验证失败：码错了或过期了
+                    localStorage.removeItem('pineapple_license');
+                    errorMsg.innerText = result.error || "授权失败，请检查卡密";
+                    btn.innerText = "解锁金库";
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                errorMsg.innerText = "网络似乎开小差了，请检查网络连接";
+                btn.innerText = "解锁金库";
+                btn.disabled = false;
+            }
+        }
+
+        // 5. 解除界面封印
+        function unlockApp() {
+            // 隐藏遮罩层
+            document.getElementById('authOverlay').classList.add('hidden');
+            // 移除高斯模糊
+            document.getElementById('mainAppContainer').classList.remove('locked');
+            // 初始化渲染 UI
+            initApp();
+        }
+
+        // --- 以下是原有的 UI 渲染与拼接逻辑，完全保持不变 ---
 
         function initApp() {
             const sidebarNav = document.getElementById('sidebarContainer');
+            sidebarNav.innerHTML = ''; // 清空可能存在的骨架屏
+            
             promptMatrix.forEach((category, index) => {
                 const item = document.createElement('div');
                 item.className = `category-item ${index === 0 ? 'active' : ''}`; 
@@ -466,14 +419,11 @@
         function toggleBottomSheet() {
             document.getElementById('mobileBottomSheet').classList.toggle('show');
         }
-
-        initApp();
     </script>
 
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // 1. 动态生成 Manifest (软件身份证)
                 const manifest = {
                     "name": "菠萝马特 Prompt Master",
                     "short_name": "菠萝马特",
@@ -488,7 +438,6 @@
                 document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${manifestUrl}">`);
                 document.head.insertAdjacentHTML('beforeend', `<meta name="theme-color" content="#115E59">`);
 
-                // 2. 动态生成 Service Worker (离线魔法师)
                 const swCode = `
                     self.addEventListener('install', e => self.skipWaiting());
                     self.addEventListener('activate', e => self.clients.claim());
@@ -499,9 +448,8 @@
                 const swBlob = new Blob([swCode], {type: 'application/javascript'});
                 const swUrl = URL.createObjectURL(swBlob);
 
-                // 3. 注册魔法师
                 navigator.serviceWorker.register(swUrl)
-                    .then(() => console.log('🍍 菠萝马特 PWA 引擎已启动！'))
+                    .then(() => console.log('🍍 PWA 引擎已启动！'))
                     .catch(err => console.error('引擎启动失败:', err));
             });
         }
