@@ -3,395 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>菠萝玛特 - Prompt Mart</title>
-    
-    <link rel="icon" href="./icon.png" type="image/png">
-    <link rel="apple-touch-icon" href="./icon.png">
-    <meta name="theme-color" content="#115E59">
-
-    <style>
+    <title>菠萝玛特 Prompt Mart</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2F4F4F"> <style>
         :root {
-            --brand-pill-bg: #115E59; 
-            --brand-pill-text: #FFFFFF; 
-            --bg-color: #F9FAFB;
-            --panel-bg: #FFFFFF;
-            --text-main: #111827;
-            --text-muted: #9CA3AF;
-            --border-color: #E5E7EB;
-            --tag-unselected-bg: #F3F4F6;
-            --tag-unselected-text: #4B5563; 
-            --tag-selected-bg: #EEF2FF;     
-            --tag-selected-text: #4338CA;   
-            --tag-selected-border: #C7D2FE; 
-            --chip-bg: #FFFFFF;
-            --chip-text: #4338CA;
-            --chip-border: #C7D2FE;
-            --primary-action: #6366F1;
-            --primary-action-hover: #4F46E5;
-            --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.03);
-            --radius-capsule: 30px; 
-            --radius-panel: 16px;
+            --primary-bg: #2F4F4F; /* 深雾霾 */
+            --accent-color: #8FBC8F; /* 青瓷绿 */
+            --text-light: #E0E0E0;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
         }
 
-        body { 
-            margin: 0; 
-            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Segoe UI", sans-serif; 
-            background: var(--bg-color); color: var(--text-main); 
-            overflow-x: hidden; letter-spacing: 0.3px;
+        body {
+            margin: 0; padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        
-        .app-container { display: flex; height: 100vh; }
 
-        /* Sidebar & Navigation */
-        .sidebar { width: 250px; background: var(--panel-bg); padding: 30px 20px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; box-shadow: var(--shadow-soft); z-index: 10; box-sizing: border-box; }
-        .brand-header { background: var(--brand-pill-bg); padding: 15px 10px; border-radius: 20px; box-shadow: 0 4px 12px rgba(17, 94, 89, 0.2); text-align: center; margin-bottom: 30px; }
-        .brand-title { font-size: 20px; font-weight: 700; color: var(--brand-pill-text); margin: 0; letter-spacing: 3px; }
-        .brand-subtitle { font-size: 10px; color: rgba(255, 255, 255, 0.8); font-weight: 400; margin-top: 6px; letter-spacing: 1px; text-transform: uppercase;}
-        
-        .sidebar-nav { display: flex; flex-direction: column; gap: 10px; width: 100%; overflow-y: auto; padding-bottom: 20px; }
-        .sidebar-nav::-webkit-scrollbar { width: 4px; }
-        .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-        
-        .category-item { width: 100%; min-height: 54px; flex-shrink: 0; box-sizing: border-box; cursor: pointer; border-radius: var(--radius-capsule); background: transparent; color: var(--text-muted); transition: all 0.2s; border: 1px solid transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .category-item .cn { font-size: 14px; font-weight: 500; }
-        .category-item .en { font-size: 10px; font-weight: 400; opacity: 0.7; font-family: 'Helvetica Neue', Arial, sans-serif; margin-top: 3px;}
-        .category-item:hover { background: var(--tag-unselected-bg); color: var(--text-main); }
-        .category-item.active { background: var(--tag-selected-bg); color: var(--tag-selected-text); border: 1px solid var(--tag-selected-border); }
+        /* 毛玻璃登录框 */
+        .auth-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 85%; max-width: 340px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
 
-        /* Main View */
-        .main-content { flex: 1; padding: 30px 40px; overflow-y: auto; }
-        .section-header { margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; text-align: center; }
-        .section-header h2 { margin: 0; font-size: 20px; font-weight: 600; }
-        .section-header .en-title { font-size: 12px; color: var(--text-muted); margin-top: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
-        
-        .tag-pool { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; } 
-        .tag-btn { background: var(--tag-unselected-bg); border: 1px solid transparent; padding: 8px 18px; border-radius: var(--radius-capsule); cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .tag-btn .cn { font-size: 14px; font-weight: 500; color: var(--tag-unselected-text); transition: color 0.2s; }
-        .tag-btn .en { font-size: 11px; font-weight: 400; color: var(--text-muted); font-family: monospace; transition: color 0.2s; margin-top: 2px;}
-        .tag-btn:hover { background: #E5E7EB; transform: translateY(-1px); }
-        .tag-btn.selected { background: var(--tag-selected-bg); border: 1px solid var(--tag-selected-border); }
-        .tag-btn.selected .cn { color: var(--tag-selected-text); font-weight: 600; }
-        .tag-btn.selected .en { color: var(--tag-selected-text); opacity: 0.8; }
+        .auth-container h1 { color: var(--accent-color); margin-top: 0; font-size: 1.5rem; }
+        .auth-container p { font-size: 0.9rem; margin-bottom: 1.5rem; opacity: 0.8; }
 
-        /* Console Panel */
-        .right-panel { width: 340px; background: var(--panel-bg); padding: 30px 25px; border-left: 1px solid var(--border-color); display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.02); z-index: 10; box-sizing: border-box; }
-        .console-header { margin-bottom: 20px; text-align: center; }
-        .console-header .cn { font-size: 16px; font-weight: 600; margin: 0; color: var(--text-main); }
-        .console-header .en { font-size: 10px; color: var(--text-muted); margin-top: 4px; letter-spacing: 1px; text-transform: uppercase;}
-        
-        .preview-box { flex: 1; background: var(--bg-color); padding: 15px; border-radius: var(--radius-panel); border: 1px solid var(--border-color); margin-bottom: 20px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; overflow-y: auto; }
-        .custom-textarea { width: 100%; border: none; background: transparent; color: var(--text-main); font-family: inherit; font-size: 14px; resize: none; outline: none; min-height: 80px; line-height: 1.5; box-sizing: border-box; }
-        .custom-textarea::placeholder { color: #D1D5DB; font-style: italic; }
-        .preview-divider { height: 1px; background: var(--border-color); margin: 10px 0; display: none; }
-        .preview-tags-container { display: flex; flex-wrap: wrap; gap: 6px; }
-        .preview-tag-chip { background: var(--chip-bg); border: 1px solid var(--chip-border); color: var(--chip-text); padding: 4px 10px; border-radius: 12px; font-size: 12px; font-family: 'Courier New', Courier, monospace; font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        
-        .btn-group { display: flex; gap: 10px; }
-        .action-btn { padding: 12px; border-radius: 12px; cursor: pointer; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; transition: all 0.2s; }
-        .action-btn .cn { font-size: 14px; font-weight: 600; }
-        .action-btn .en { font-size: 9px; opacity: 0.8; font-family: sans-serif; letter-spacing: 0.5px;}
-        .btn-copy { background: var(--primary-action); color: #FFF; flex: 2; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);}
-        .btn-copy:hover { background: var(--primary-action-hover); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);}
-        .btn-clear { background: var(--bg-color); color: var(--text-main); border: 1px solid var(--border-color); flex: 1; }
-        .btn-clear:hover { background: #E5E7EB; }
+        input[type="text"] {
+            width: 100%; padding: 12px; margin-bottom: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px; color: white;
+            font-size: 1rem; box-sizing: border-box; text-align: center; outline: none;
+        }
+        input[type="text"]:focus { border-color: var(--accent-color); }
 
-        /* Mobile Adjustments */
-        .fab { display: none; position: fixed; bottom: 25px; right: 25px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary-action); color: white; font-size: 22px; text-align: center; line-height: 56px; box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3); cursor: pointer; z-index: 100; font-weight: bold; transition: transform 0.2s; }
-        .fab-badge { position: absolute; top: 0px; right: 0px; background: #EF4444; color: white; font-size: 11px; width: 18px; height: 18px; border-radius: 50%; line-height: 18px; font-weight: bold; display: none; }
-        .mobile-bottom-sheet { display: none; position: fixed; bottom: -100%; left: 0; width: 100%; box-sizing: border-box; background: var(--panel-bg); padding: 25px 20px; border-top-left-radius: 24px; border-top-right-radius: 24px; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); transition: bottom 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 99; }
-        .mobile-bottom-sheet.show { bottom: 0; }
-        .sheet-close-btn { width: 100%; margin-top: 10px; padding: 12px; background: transparent; color: var(--text-muted); border: none; font-size: 13px; cursor: pointer; }
+        button {
+            width: 100%; padding: 12px;
+            background: var(--accent-color); color: #1a1a1a;
+            border: none; border-radius: 8px;
+            font-size: 1rem; font-weight: bold; cursor: pointer;
+        }
 
-        @media (max-width: 768px) {
-            .app-container { flex-direction: column; }
-            .sidebar { width: 100%; box-sizing: border-box; flex-direction: row; flex-wrap: wrap; justify-content: center; padding: 15px 10px; border-right: none; border-bottom: 1px solid var(--border-color); gap: 6px; }
-            .sidebar-nav { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 6px; overflow-y: visible; padding-bottom: 0;}
-            .brand-header { width: 100%; margin-bottom: 10px; } 
-            .category-item { width: calc(33.33% - 8px); min-height: 48px; padding: 0; }
-            .main-content { padding: 20px 15px; }
-            .right-panel { display: none; }
-            .fab { display: block; }
-            .mobile-bottom-sheet { display: block; }
+        #msg { margin-top: 1rem; font-size: 0.85rem; height: 1.2rem; }
+
+        /* 验证后的内容展示区 */
+        #main-content {
+            display: none;
+            width: 100%; max-width: 800px;
+            padding: 20px; box-sizing: border-box;
+            background: white; color: #333;
+            min-height: 100vh;
         }
     </style>
 </head>
 <body>
 
-    <div class="app-container" id="mainAppContainer">
-        <div class="sidebar">
-            <div class="brand-header">
-                <h1 class="brand-title">菠萝玛特</h1>
-                <div class="brand-subtitle">Prompt Mart</div>
-            </div>
-            <div class="sidebar-nav" id="sidebarContainer"></div>
-        </div>
-
-        <div class="main-content">
-            <div class="section-header">
-                <h2 id="currentCategoryTitleCn">加载中...</h2>
-                <div class="en-title" id="currentCategoryTitleEn">LOADING</div>
-            </div>
-            <div class="tag-pool" id="tagPoolContainer"></div>
-        </div>
-
-        <div class="right-panel">
-            <div class="console-header">
-                <p class="cn">指令控制台</p>
-                <p class="en">Prompt Console</p>
-            </div>
-            <div class="preview-box">
-                <textarea id="customInput" class="custom-textarea" placeholder="在此自由输入你的专属描述词..." oninput="syncInput(event)"></textarea>
-                <div class="preview-divider" id="previewDivider"></div>
-                <div class="preview-tags-container" id="promptPreviewTags"></div>
-            </div>
-            <div class="btn-group">
-                <button class="action-btn btn-clear" onclick="clearPrompt()">
-                    <span class="cn">清空</span><span class="en">CLEAR</span>
-                </button>
-                <button class="action-btn btn-copy" onclick="copyPrompt()">
-                    <span class="cn">一键复制</span><span class="en">COPY PROMPT</span>
-                </button>
-            </div>
-        </div>
+    <div class="auth-container" id="authBox">
+        <h1>🍍 菠萝玛特</h1>
+        <p>专业 AI 提示词矩阵</p>
+        <input type="text" id="licenseInput" placeholder="请输入授权码" autocomplete="off">
+        <button onclick="verifyAndLoad()">验证并加载</button>
+        <div id="msg"></div>
     </div>
 
-    <div class="fab" onclick="toggleBottomSheet()">✨<div class="fab-badge" id="fabBadge">0</div></div>
-
-    <div class="mobile-bottom-sheet" id="mobileBottomSheet">
-        <div class="console-header">
-            <p class="cn">指令控制台</p>
-            <p class="en">Prompt Console</p>
-        </div>
-        <div class="preview-box" style="height: 180px;">
-            <textarea id="customInputMobile" class="custom-textarea" placeholder="在此自由输入你的专属描述词..." oninput="syncInput(event)"></textarea>
-            <div class="preview-divider" id="previewDividerMobile"></div>
-            <div class="preview-tags-container" id="promptPreviewTagsMobile"></div>
-        </div>
-        <div class="btn-group">
-            <button class="action-btn btn-clear" onclick="clearPrompt()">
-                <span class="cn">清空</span><span class="en">CLEAR</span>
-            </button>
-            <button class="action-btn btn-copy" onclick="copyPrompt()">
-                <span class="cn">一键复制</span><span class="en">COPY PROMPT</span>
-            </button>
-        </div>
-        <button onclick="toggleBottomSheet()" class="sheet-close-btn">收起面板 / CLOSE PANEL</button>
-    </div>
+    <div id="main-content"></div>
 
     <script>
-        const promptMatrix = [
-            {
-                nameCn: "摄影与底片", nameEn: "Cameras & Film", id: "camera",
-                tags: [
-                    { labelCn: "哈苏中画幅", labelEn: "Hasselblad", prompt: "Shot on Hasselblad" },
-                    { labelCn: "徕卡M11", labelEn: "Leica M11", prompt: "Leica M11" },
-                    { labelCn: "阿莱电影机", labelEn: "ARRI Alexa", prompt: "ARRI Alexa 65" },
-                    { labelCn: "柯达 Portra", labelEn: "Portra 400", prompt: "Kodak Portra 400 film" },
-                    { labelCn: "富士 Superia", labelEn: "Fujifilm", prompt: "Fujifilm Superia film" },
-                    { labelCn: "夜景电影卷", labelEn: "Cinestill 800T", prompt: "Cinestill 800T" },
-                    { labelCn: "一次性相机", labelEn: "Disposable", prompt: "Disposable camera aesthetic" },
-                    { labelCn: "拍立得质感", labelEn: "Polaroid", prompt: "Polaroid style" }
-                ]
-            },
-            {
-                nameCn: "镜头与光圈", nameEn: "Lenses & Aperture", id: "lens",
-                tags: [
-                    { labelCn: "24mm 广角", labelEn: "24mm Lens", prompt: "24mm lens" },
-                    { labelCn: "35mm 人文", labelEn: "35mm Lens", prompt: "35mm lens" },
-                    { labelCn: "50mm 标准", labelEn: "50mm Lens", prompt: "50mm lens" },
-                    { labelCn: "85mm 人像", labelEn: "85mm Lens", prompt: "85mm lens" },
-                    { labelCn: "200mm 长焦", labelEn: "200mm Lens", prompt: "200mm telephoto lens" },
-                    { labelCn: "微距镜头", labelEn: "Macro Lens", prompt: "Macro lens" },
-                    { labelCn: "鱼眼镜头", labelEn: "Fisheye", prompt: "Fisheye lens" },
-                    { labelCn: "f/1.2 大光圈", labelEn: "f/1.2", prompt: "f/1.2 aperture, shallow depth of field" }
-                ]
-            },
-            {
-                nameCn: "视角与景别", nameEn: "Angles & Shots", id: "angle",
-                tags: [
-                    { labelCn: "面部特写", labelEn: "Close-up", prompt: "Close-up shot" },
-                    { labelCn: "半身牛仔景", labelEn: "Cowboy", prompt: "Cowboy shot" },
-                    { labelCn: "全身景", labelEn: "Full Body", prompt: "Full body shot" },
-                    { labelCn: "极远大景", labelEn: "Extreme Wide", prompt: "Extreme wide shot" },
-                    { labelCn: "仰视机位", labelEn: "Low Angle", prompt: "Low angle shot" },
-                    { labelCn: "上帝视角", labelEn: "Bird's-eye", prompt: "Bird's-eye view" },
-                    { labelCn: "荷兰角倾斜", labelEn: "Dutch Angle", prompt: "Dutch angle" }
-                ]
-            },
-            {
-                nameCn: "光线与氛围", nameEn: "Lighting", id: "lighting",
-                tags: [
-                    { labelCn: "黄金时刻", labelEn: "Golden Hour", prompt: "Golden hour lighting" },
-                    { labelCn: "蓝调时刻", labelEn: "Blue Hour", prompt: "Blue hour lighting" },
-                    { labelCn: "斑驳树影", labelEn: "Dappled", prompt: "Dappled sunlight" },
-                    { labelCn: "伦勃朗光", labelEn: "Rembrandt", prompt: "Rembrandt lighting" },
-                    { labelCn: "边缘轮廓光", labelEn: "Rim Light", prompt: "Rim lighting" },
-                    { labelCn: "丁达尔效应", labelEn: "Volumetric", prompt: "Volumetric lighting, Tyndall effect" },
-                    { labelCn: "赛博霓虹", labelEn: "Neon Lights", prompt: "Neon lighting" }
-                ]
-            },
-            {
-                nameCn: "环境与背景", nameEn: "Environment", id: "environment",
-                tags: [
-                    { labelCn: "纯黑背景", labelEn: "Solid Black", prompt: "Solid black background" },
-                    { labelCn: "极简留白", labelEn: "Minimalist", prompt: "Minimalist empty background" },
-                    { labelCn: "赛博城市", labelEn: "Cyberpunk", prompt: "Cyberpunk city streets" },
-                    { labelCn: "废弃废墟", labelEn: "Ruins", prompt: "Abandoned ruins" },
-                    { labelCn: "魔法森林", labelEn: "Forest", prompt: "Magical forest" },
-                    { labelCn: "科幻实验室", labelEn: "Lab", prompt: "High-tech sci-fi laboratory" }
-                ]
-            },
-            {
-                nameCn: "人物与细节", nameEn: "Character", id: "character",
-                tags: [
-                    { labelCn: "皮肤纹理", labelEn: "Skin Texture", prompt: "Realistic skin texture, visible pores" },
-                    { labelCn: "清透眼神光", labelEn: "Catchlight", prompt: "Beautiful catchlight in eyes" },
-                    { labelCn: "根根发丝", labelEn: "Hair Detail", prompt: "Highly detailed hair strands" },
-                    { labelCn: "狂喜表情", labelEn: "Ecstatic", prompt: "Ecstatic expression" },
-                    { labelCn: "冷酷忧郁", labelEn: "Stoic", prompt: "Stoic and melancholic look" },
-                    { labelCn: "动感姿势", labelEn: "Dynamic", prompt: "Dynamic action pose" }
-                ]
-            },
-            {
-                nameCn: "材质与色彩", nameEn: "Color", id: "material",
-                tags: [
-                    { labelCn: "磨砂哑光", labelEn: "Matte", prompt: "Matte finish" },
-                    { labelCn: "高光反光", labelEn: "Glossy", prompt: "High gloss reflections" },
-                    { labelCn: "半透明质感", labelEn: "Translucent", prompt: "Translucent material" },
-                    { labelCn: "莫兰迪色调", labelEn: "Morandi", prompt: "Morandi color palette" },
-                    { labelCn: "赛博配色", labelEn: "Neon Palette", prompt: "Cyberpunk color scheme, cyan and magenta" },
-                    { labelCn: "低饱和度", labelEn: "Muted", prompt: "Low saturation, muted colors" }
-                ]
-            },
-            {
-                nameCn: "画风与渲染", nameEn: "Rendering", id: "style",
-                tags: [
-                    { labelCn: "极其细致", labelEn: "Masterpiece", prompt: "Ultra-detailed, Masterpiece" },
-                    { labelCn: "8K 极高画质", labelEn: "8K Res", prompt: "8k resolution, best quality" },
-                    { labelCn: "极度写实", labelEn: "Realistic", prompt: "Hyper-realistic photography" },
-                    { labelCn: "虚幻引擎 5", labelEn: "UE5", prompt: "Unreal Engine 5 render" },
-                    { labelCn: "辛烷值渲染", labelEn: "Octane", prompt: "Octane render" },
-                    { labelCn: "吉卜力风", labelEn: "Ghibli", prompt: "Studio Ghibli style anime" }
-                ]
-            }
-        ];
+        async function verifyAndLoad() {
+            const key = document.getElementById('licenseInput').value.trim();
+            const msg = document.getElementById('msg');
+            const authBox = document.getElementById('authBox');
+            const mainContent = document.getElementById('main-content');
+            
+            if (!key) { msg.style.color = "#ff6b6b"; msg.innerText = "请输入授权码"; return; }
 
-        let selectedTagPrompts = [];
+            msg.style.color = "var(--text-light)";
+            msg.innerText = "云端安全验证中...";
 
-        window.onload = () => {
-            initApp();
-            registerPWA();
-        };
-
-        function initApp() {
-            const sidebarNav = document.getElementById('sidebarContainer');
-            sidebarNav.innerHTML = ''; 
-            promptMatrix.forEach((category, index) => {
-                const item = document.createElement('div');
-                item.className = `category-item ${index === 0 ? 'active' : ''}`; 
-                item.innerHTML = `<span class="cn">${category.nameCn}</span><span class="en">${category.nameEn}</span>`;
-                item.onclick = () => renderCategoryTags(category.id, item); 
-                sidebarNav.appendChild(item);
-            });
-            renderCategoryTags(promptMatrix[0].id);
-        }
-
-        function renderCategoryTags(categoryId, categoryElement) {
-            if (categoryElement) {
-                document.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
-                categoryElement.classList.add('active');
-            }
-            const categoryData = promptMatrix.find(cat => cat.id === categoryId);
-            document.getElementById('currentCategoryTitleCn').innerText = categoryData.nameCn;
-            document.getElementById('currentCategoryTitleEn').innerText = categoryData.nameEn;
-            const tagPool = document.getElementById('tagPoolContainer');
-            tagPool.innerHTML = '';
-            categoryData.tags.forEach(tag => {
-                const btn = document.createElement('button');
-                btn.className = 'tag-btn';
-                if (selectedTagPrompts.includes(tag.prompt)) btn.classList.add('selected');
-                btn.innerHTML = `<span class="cn">${tag.labelCn}</span><span class="en">${tag.labelEn}</span>`;
-                btn.onclick = () => handleTagClick(btn, tag.prompt);
-                tagPool.appendChild(btn);
-            });
-        }
-
-        function handleTagClick(buttonElement, tagPrompt) {
-            buttonElement.classList.toggle('selected');
-            if (selectedTagPrompts.includes(tagPrompt)) {
-                selectedTagPrompts = selectedTagPrompts.filter(p => p !== tagPrompt);
-            } else {
-                selectedTagPrompts.push(tagPrompt);
-            }
-            updatePreviews();
-        }
-
-        function syncInput(event) {
-            const text = event.target.value;
-            document.getElementById('customInput').value = text;
-            document.getElementById('customInputMobile').value = text;
-        }
-
-        function updatePreviews() {
-            const pcContainer = document.getElementById('promptPreviewTags');
-            const mobileContainer = document.getElementById('promptPreviewTagsMobile');
-            const pcDivider = document.getElementById('previewDivider');
-            const mobileDivider = document.getElementById('previewDividerMobile');
-            pcContainer.innerHTML = '';
-            mobileContainer.innerHTML = '';
-            selectedTagPrompts.forEach(prompt => {
-                const chip = `<div class="preview-tag-chip">${prompt}</div>`;
-                pcContainer.innerHTML += chip;
-                mobileContainer.innerHTML += chip;
-            });
-            const hasTags = selectedTagPrompts.length > 0;
-            pcDivider.style.display = hasTags ? 'block' : 'none';
-            mobileDivider.style.display = hasTags ? 'block' : 'none';
-            const badge = document.getElementById('fabBadge');
-            badge.style.display = hasTags ? 'block' : 'none';
-            badge.innerText = selectedTagPrompts.length;
-        }
-
-        function clearPrompt() {
-            selectedTagPrompts = [];
-            document.querySelectorAll('.tag-btn').forEach(btn => btn.classList.remove('selected'));
-            document.getElementById('customInput').value = '';
-            document.getElementById('customInputMobile').value = '';
-            updatePreviews();
-        }
-
-        function copyPrompt() {
-            const customText = document.getElementById('customInput').value.trim();
-            const tagsText = selectedTagPrompts.join(', ');
-            let finalPromptArray = [];
-            if (customText) finalPromptArray.push(customText);
-            if (tagsText) finalPromptArray.push(tagsText);
-            const finalPrompt = finalPromptArray.join(', ');
-            if (finalPrompt) {
-                navigator.clipboard.writeText(finalPrompt).then(() => {
-                    alert('✨ 菠萝玛特提示：参数已装填，随时可以召唤神图！\n\n' + finalPrompt);
+            try {
+                // 注意：这里已经请求你的新域名 api.boluomate.com 了
+                const response = await fetch('https://api.boluomate.com', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: key })
                 });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    // 隐藏外壳，显示内容区
+                    authBox.style.display = 'none';
+                    document.body.style.justifyContent = 'flex-start';
+                    document.body.style.background = '#f4f4f4'; 
+                    mainContent.style.display = 'block';
+                    
+                    // 将 KV 里的提示词矩阵注入页面
+                    mainContent.innerHTML = result.data;
+                } else {
+                    msg.style.color = "#ff6b6b";
+                    msg.innerText = result.message;
+                }
+            } catch (error) {
+                msg.style.color = "#ff6b6b";
+                msg.innerText = "网络异常，请检查接口配置";
             }
         }
-
-        function toggleBottomSheet() {
-            document.getElementById('mobileBottomSheet').classList.toggle('show');
-        }
-
-        function registerPWA() {
-            if ('serviceWorker' in navigator) {
-                const manifest = {
-                    "name": "菠萝玛特 Prompt Mart",
-                    "short_name": "菠萝玛特",
-                    "display": "standalone",
-                    "background_color": "#F9FAFB",
-                    "theme_color": "#115E59", 
-                    "start_url": "./",
-                    "icons": [{"src": "./icon.png", "sizes": "192x192 512x512", "type": "image/png"}]
-                };
-                const manifestUrl = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type: 'application/json'}));
-                document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${manifestUrl}">`);
-            }
+        
+        // PWA 注册
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
         }
     </script>
 </body>
